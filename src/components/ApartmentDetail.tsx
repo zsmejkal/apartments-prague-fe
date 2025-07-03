@@ -37,6 +37,33 @@ const ApartmentDetail: React.FC<ApartmentDetailProps> = ({ apartment, onBack }) 
     }
   };
 
+  const generateShareUrl = (apartment: Apartment) => {
+    const baseUrl = 'https://www.sreality.cz/detail/prodej/byt';
+    const roomLayout = apartment.room_layout || '1+kk';
+    const locality = apartment.locality.toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-+/g, '-');
+    
+    return `${baseUrl}/${roomLayout}/${locality}/${apartment.hash_id}`;
+  };
+
+  const shareUrl = generateShareUrl(apartment);
+
+  const copyShareUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      alert('Share URL copied to clipboard!');
+    } catch (err) {
+      console.error('Failed to copy URL:', err);
+      alert('Failed to copy URL. Please copy manually: ' + shareUrl);
+    }
+  };
+
+  const openShareUrl = () => {
+    window.open(shareUrl, '_blank');
+  };
+
   return (
     <div className="apartment-detail">
       <div className="apartment-detail-header">
@@ -53,7 +80,7 @@ const ApartmentDetail: React.FC<ApartmentDetailProps> = ({ apartment, onBack }) 
               <div className="main-image">
                 <img
                   src={apartment.images[currentImageIndex]}
-                  alt={`${apartment.name} - Image ${currentImageIndex + 1}`}
+                  alt={`${apartment.name} - ${currentImageIndex + 1}`}
                 />
                 {apartment.images.length > 1 && (
                   <>
@@ -162,6 +189,28 @@ const ApartmentDetail: React.FC<ApartmentDetailProps> = ({ apartment, onBack }) 
               <div className="detail-item">
                 <span className="detail-label">Hash ID:</span>
                 <span className="detail-value">{apartment.hash_id}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="apartment-detail-section">
+            <h2>Share</h2>
+            <div className="share-section">
+              <div className="share-url">
+                <input
+                  type="text"
+                  value={shareUrl}
+                  readOnly
+                  className="share-url-input"
+                />
+              </div>
+              <div className="share-buttons">
+                <button className="share-button copy" onClick={copyShareUrl}>
+                  📋 Copy URL
+                </button>
+                <button className="share-button open" onClick={openShareUrl}>
+                  🔗 Open on Sreality
+                </button>
               </div>
             </div>
           </div>
